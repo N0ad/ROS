@@ -5,10 +5,10 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="g.ivanov2@g.nsu.ru">ige</maintainer>
-  <license>'Apache License 2.0'</license>
+  <license>'Apache 2.0'</license>
 
-  <depend>rclpy</depend>
-  <depend>example_interfaces</depend>
+  <exec_depend>name_services</exec_depend>
+  <exec_depend>rclpy</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
