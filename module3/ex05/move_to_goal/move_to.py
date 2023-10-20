@@ -49,22 +49,16 @@ class MoveToGoal(Node):
         x_d = x - start_position.x
         y_d = y - start_position.y
 
-        dst_target = m.sqrt(x_d**2 + y_d**2)
-        ang_target = m.atan2(y_d, x_d) - start_position.theta
+        ang_target = theta - start_position.theta
+
+        dst = m.sqrt(x_d**2 + y_d**2)
+        ra = m.sqrt(dst**2 / (2 * (1 - m.cos(ang_target))))
+        dst_target = ra * ang_target
 
         self.get_logger().info(f"\t{dst_target} {ang_target}")
 
-        if(abs(dst_target) > 0.1):
-            if(abs(ang_target) > 0.1):
-                self._send_turtle_msg(angle_speed=ang_target)
-            self._send_turtle_msg(dst_target)
+        self._send_turtle_msg(dst_target, angle_speed=ang_target)
         
-        ang_target = theta - ang_target
-
-        if(abs(ang_target) > 0.1):
-            self._send_turtle_msg(angle_speed=ang_target)
-
-
 def main():
     rclpy.init()
 
