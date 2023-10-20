@@ -24,13 +24,14 @@ class TurtleActionClient(Node):
 
         self._action_client.wait_for_server()
 
-        self.goal_future = self._action_client.send_goal_async(goal_msg)
+        self.goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
         self.goal_future.add_done_callback(self.goal_callback)
         self.working = True
+        return self.goal_future
 
     def goal_callback(self, future):
         goal_handle = future.result()
-
+        
         if not goal_handle.accepted:
             self.get_logger().info("Goal not accepted")
             return
@@ -44,18 +45,22 @@ class TurtleActionClient(Node):
         result = future.result().result
         self.get_logger().info(f"Result: {result.result}")
         self.working = False
+    
+    def feedback_callback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        self.get_logger().info('Distance feedback: {0} m.'.format(feedback.odom))
 
 def main():
     rclpy.init()
 
     tac = TurtleActionClient()
 
-    tac.send_goal("forward", 3)
-    time.sleep(4)
-    tac.send_goal("turn_right", angle=90)
-    time.sleep(4)
-    tac.send_goal("forward", 1)
-    time.sleep(4)
+    future = tac.send_goal("forward", 3)
+    rclpy.spin_until_future_complete(tac, future)
+    future = tac.send_goal("turn_right", angle=90)
+    rclpy.spin_until_future_complete(tac, future)
+    future = tac.send_goal("forward", 1)
+    rclpy.spin_until_future_complete(tac, future)
 
     rclpy.spin(tac)
 
