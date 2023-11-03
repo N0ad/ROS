@@ -13,12 +13,14 @@ class MoveToGoal(Node):
 
     def __init__(self):
         super().__init__("move_to_goal_node")
-
+        
+        self.get_logger().info("Turtle's coordinates is 0,0. Turtle's angle is 0.")
         self._cmd_vel_pub = self.create_publisher(Twist, "/turtle1/cmd_vel", 10)
-        self._pose_sub    = self.create_subscription(Pose, "/turtle1/pose", self.pose_callback, 0)
-        self.pose_data    = Pose(x=5.54, y=5.54, theta=0.)
+        self._pose_sub    = self.create_subscription(Pose, "/turtle1/pose", self.pose_callback, 10)
+        self.pose_data    = Pose()
         
     def pose_callback(self, msg):
+        time.sleep(1)
         self.pose_data = msg
 
     def __call__(self, x, y, theta):
@@ -31,6 +33,7 @@ class MoveToGoal(Node):
         time.sleep(3)
         
     def _get_turtle_pos(self):
+        time.sleep(1)
         return self.pose_data
     
     def _send_turtle_msg(self, x_speed : float = 0., angle_speed : float = 0.):
@@ -48,15 +51,43 @@ class MoveToGoal(Node):
 
         x_d = x - start_position.x
         y_d = y - start_position.y
+        
+        tangl = m.atan(x_d / y_d)
+        if ((x_d < 0) and (y_d < 0)):
+            tangl = tangl + m.pi
+        
+        ang_target = tangl - start_position.theta
 
-        ang_target = theta - start_position.theta
-
-        dst = m.sqrt(x_d**2 + y_d**2)
-        ra = m.sqrt(dst**2 / (2 * (1 - m.cos(ang_target))))
+        ra = 0.05
         dst_target = ra * ang_target
 
         self.get_logger().info(f"\t{dst_target} {ang_target}")
+        self._send_turtle_msg(dst_target, angle_speed=ang_target)
+        
+        time.sleep(1)
+        
+        sx = x + 0.05 * m.cos(tangl)
+        sy = y + 0.05 * m.sin(tangl)
+        dst = m.sqrt(x_d**2 + y_d**2)
+        
+        ang_target = 0.0
+        
+        self.get_logger().info(f"\t{dst} {ang_target}")
+        self._send_turtle_msg(dst, angle_speed=ang_target)
+        
+        time.sleep(0.5 * dst)
+        
+        sx = sx + x_d
+        sy = sy + y_d
+        x_d = x - sx
+        y_d = y - sy
 
+        ang_target = (theta - tangl + m.pi * 2) % (m.pi * 2)
+
+        ra = 0.05
+        dst_target = ra * ang_target
+
+        self.get_logger().info(f"\t{dst_target} {ang_target}")
         self._send_turtle_msg(dst_target, angle_speed=ang_target)
         
 def main():
