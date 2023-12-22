@@ -35,13 +35,13 @@
       </material>
     </visual>
 
-<!-- Делаем коллизию -->
+<!-- Collision -->
     <collision>
       <geometry>
         <box length="${base_length} ${base_width} ${base_height}"/>
       </geometry>
     </collision>
-<!-- Создаем массу и инерцию  --> 
+<!-- Inertial  --> 
     <xacro:default_inertial mass="10"/>
   </link>
 

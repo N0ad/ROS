@@ -14,7 +14,7 @@
         <color rgba="0 1.0 1.0 1.0"/>
       </material>
     </visual>
-    <!-- Делаем коллизию -->
+    <!-- Collision -->
     <collision>
       <geometry>
         <box length="0.5 1 0.2"/>
